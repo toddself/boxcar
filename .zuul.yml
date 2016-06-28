@@ -14,10 +14,6 @@ browsers:
   - name: safari
     version: latest
     os: 'Mac 10.11'
-  - name: iphone
-    version: '8.4..latest'
-  - name: android
-    version: '4.4..5.1'
   - name: opera
     version: latest
     platform: 'Windows 10'
