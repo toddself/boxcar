@@ -24,12 +24,21 @@ function getEditor (cellData, cellConfig, isActive, inEdit, row, col, chooRoot, 
 
     const actions = {
       oninput: (evt) => send(`${chooRoot}:updateScratch`, {value: evt.target.value}),
-      onclick: () => send(`${chooRoot}:move`, {mouse: true, row: row, col: col})
+      onchange: (evt) => {
+        console.log('sending on change', evt.target.value)
+        send(`${chooRoot}:commit`, {value: evt.target.value})
+      }
     }
-    $el = formElement(cellConfig.editorType, params, actions)
+    $el = formElement(cellConfig.editorType, params, actions, cellConfig.options)
   } else {
+    if (cellConfig.editorType === 'select') {
+      const opt = cellConfig.options.find(d => d.value === cellData)
+      console.log('options for select', opt, cellData)
+      cellData = opt && opt.name || cellData
+    }
+
     $el = v`<span
-      onclick=${() => send(`${chooRoot}:move`, {mouse: true, row: row, col: col})}
+      onclick=${() => send(`${chooRoot}:move`, {mouse: true, row: row, col: col, key: ''})}
       class="${grid} ${isActive ? 'active' : ''} cell-content cell-data">
         ${cellData}
       </span>`

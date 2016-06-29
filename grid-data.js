@@ -9,6 +9,12 @@ const move = require('./effects/move.js')
 
 const validators = {}
 const identity = (x) => x
+const member = (group, x) => {
+  if (group.indexOf(x) > -1) {
+    return x
+  }
+  throw new Error(`${x} is not a member of ${group.join(', ')}`)
+}
 
 module.exports = function (chooRoot, header, data) {
   assert.ok(typeof chooRoot === 'string', `${chooRoot} must be a string`)
@@ -24,7 +30,11 @@ module.exports = function (chooRoot, header, data) {
   }
 
   header = header.map(h => {
-    const f = h.validator || identity
+    let defaultValidator = identity
+    if (h.editorType === 'select') {
+      defaultValidator = member.bind(null, h.options.map(o => o.value))
+    }
+    const f = h.validator || defaultValidator
     assert.ok(typeof f === 'function', 'validators must be functions')
     validators[h.id] = f
     h.validator = void 0
@@ -90,13 +100,14 @@ module.exports = function (chooRoot, header, data) {
         const validator = validators[colId]
         let value
         try {
-          value = validator(value)
+          value = validator(action.value)
         } catch (err) {
           return {error: err}
         }
         const data = state.data.slice(0)
         bus.emit('update', {rowId: rowId, colId: colId, value: value})
         data[row][colId] = value
+        console.log('update state.data with', data)
         return {data: data}
       },
       clearScratch: (action, state) => {
