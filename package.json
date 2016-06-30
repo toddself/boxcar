@@ -4,15 +4,21 @@
   "description": "A choo view for handling lists of data",
   "main": "boxcar.js",
   "scripts": {
-    "start": "node serve-dev",
+    "start": "budo demo.js -o --title \"Boxcar Demo\" -P -l -- -t -g=es2020 -t sheetify/transform",
     "test": "zuul -- test/*.spec.js",
     "test:local": "zuul --local 8080 -- test/*.spec.js",
+    "test:phantom": "zuul --phantom -- test/*.spec.js",
     "build": "browserify . > bundle.js"
   },
   "browserify": {
     "transforms": [
       "sheetify/transform",
-      "es2020"
+      [
+        "es2020",
+        {
+          "global": true
+        }
+      ]
     ]
   },
   "repository": {
@@ -48,8 +54,10 @@
   "devDependencies": {
     "browserify": "^13.0.1",
     "browserify-istanbul": "^2.0.0",
+    "budo": "^8.3.0",
     "istanbul": "^0.4.3",
     "keysim": "^1.3.0",
+    "phantomjs": "^2.1.7",
     "tape": "^4.5.1",
     "watchify": "^3.7.0",
     "zuul": "toddself/zuul"

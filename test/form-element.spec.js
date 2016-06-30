@@ -29,3 +29,11 @@ test('select boxes', (t) => {
   }
   t.end()
 })
+
+test('checkboxes', (t) => {
+  const c = formElement('checkbox', {value: true}, null, null)
+  t.equal(c.tagName, 'INPUT', 'is input')
+  t.equal(c.type, 'checkbox', 'is checkbox')
+  t.ok(c.checked, 'checked')
+  t.end()
+})

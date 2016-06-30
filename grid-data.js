@@ -8,6 +8,8 @@ const getActiveCellContents = require('./lib/get-active-cell-contents.js')
 const move = require('./effects/move.js')
 
 const validators = {}
+
+// default validators
 const identity = (x) => x
 const member = (group, x) => {
   if (group.indexOf(x) > -1) {
@@ -60,8 +62,9 @@ module.exports = function (chooRoot, header, data) {
         send(`${chooRoot}:updateScratch`, {value: initialValue})
       },
       commit: (action, state, send) => {
+        const val = typeof action.value === 'undefined' ? state.scatch : action.value
         send(`${chooRoot}:unsetEdit`)
-        send(`${chooRoot}:updateData`, {value: action.value || state.scratch})
+        send(`${chooRoot}:updateData`, {value: val})
         send(`${chooRoot}:clearScratch`)
       },
       revert: (action, state, send) => {
@@ -104,6 +107,7 @@ module.exports = function (chooRoot, header, data) {
         } catch (err) {
           return {error: err}
         }
+        console.log('Validated value is', value)
         const data = state.data.slice(0)
         bus.emit('update', {rowId: rowId, colId: colId, value: value})
         data[row][colId] = value
