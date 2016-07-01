@@ -12,16 +12,14 @@ Very much a WIP.  You can hardcode some data and see it get (rudimentarily using
 Still working on finalizing the data flow so things are subject to change.
 
 ## Browser Support
+You need flexbox support currently.  Maybe one day you can provide a different
+set of styles to make it work with flexbox, but today is not that day.
 
-While in experimental mode, expect this to only work in browsers which support:
-
-* [flexbox](http://caniuse.com/#search=flex)
-* [arrow-functions](http://caniuse.com/#search=arrow-functions)
-* template strings
+The build script uses [es2020](https://github.com/yoshuawuyts/es2020) to handle
+compiling down to an ES5 runtime. The browser matrix, however, has nothing to do
+with layout but only functionality.
 
 [![Build Status](https://saucelabs.com/browser-matrix/boxcar.svg)](https://saucelabs.com/beta/builds/063d475755d94d5e99603d41bbf86447)
-
-Due to CSS-support issues, support is not currently planned for anything prior to IE 11 (and IE 11 support is conditional depending on how it handles flexbox). However! You'll be able to override the provided CSS so you have that option if you need.
 
 ## Testing
 Tests are run locally via Chrome.

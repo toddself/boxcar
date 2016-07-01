@@ -4,6 +4,7 @@ const grid = sf`
   :host {
     width: 1000px;
     box-sizing: border-box;
+    font-family: sans-serif;
   }
 
   .grid {
@@ -47,7 +48,7 @@ const grid = sf`
     flex-wrap: nowrap;
   }
 
-  .row:nth-child(odd) {
+  .row:nth-child(2n) {
     background-color: #eee;
   }
 `

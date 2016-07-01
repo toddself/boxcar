@@ -8,6 +8,7 @@ const getActiveCellContents = require('./lib/get-active-cell-contents.js')
 const move = require('./effects/move.js')
 
 const validators = {}
+const disallowedTypes = ['hidden', 'file', 'radio', 'reset', 'submit']
 
 // default validators
 const identity = (x) => x
@@ -32,6 +33,12 @@ module.exports = function (chooRoot, header, data) {
   }
 
   header = header.map(h => {
+    console.log(`parsing header type ${h.editorType}`)
+    h.editorType = h.editorType || 'text'
+    if (disallowedTypes.indexOf(h.editorType) > -1) {
+      throw new Error(`${h.editorType} is not an allowed type of form element`)
+    }
+
     let defaultValidator = identity
     if (h.editorType === 'select') {
       defaultValidator = member.bind(null, h.options.map(o => o.value))
@@ -94,6 +101,7 @@ module.exports = function (chooRoot, header, data) {
         return {inEdit: false}
       },
       updateScratch: (action, state) => {
+        bus.emit('updateScratch', action.value)
         return {scratch: action.value}
       },
       updateData: (action, state) => {
@@ -119,7 +127,7 @@ module.exports = function (chooRoot, header, data) {
       },
       insertRow: (action, state) => {
         const row = {id: shortid.generate()}
-        state.headers.forEach(h => {
+        state.header.forEach(h => {
           row[h.id] = h.default || ''
         })
         const data = state.data.slice(0)
@@ -143,8 +151,11 @@ module.exports = function (chooRoot, header, data) {
       }
     },
     subscriptions: [
-      (send) => bus.on('removeRow', (evt) => send(`${chooRoot}:removeById`, {id: evt.id})),
-      (send) => bus.on('insertRow', (evt) => send(`${chooRoot}:insertById`, {id: evt.id})),
+      (send) => bus.on('deleteRow', (evt) => send(`${chooRoot}:removeById`, {id: evt.id})),
+      (send) => bus.on('addRow', (evt) => {
+        evt = evt || {}
+        send(`${chooRoot}:insertById`, {id: evt.id})
+      }),
       (send) => bus.on('userActive', (evt) => send(`${chooRoot}:userActive`, {user: evt.user, row: evt.row, col: evt.col}))
     ]
   }

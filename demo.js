@@ -15,4 +15,14 @@ const data = [
   {id: shortid.generate(), test1: 'foo', test2: true, test3: 'cigarettes', test4: 'and', test5: 'beer', test6: 'in el sob'}
 ]
 
-boxcar(document.body, {columns: header, data: data})
+const container = document.createElement('div')
+document.body.appendChild(container)
+const box = boxcar(container, {columns: header, data: data})
+
+box.on('insertRow', (evt) => console.log('Insert:', evt))
+  .on('update', (evt) => console.log('cell updated:', evt))
+
+const add = document.createElement('button')
+add.innerText = 'Add row'
+add.onclick = () => box.emit('addRow')
+document.body.appendChild(add)
