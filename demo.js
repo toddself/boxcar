@@ -1,6 +1,7 @@
-const boxcar = require('./')
 const shortid = require('shortid')
+const pull = require('pull-stream')
 
+const boxcar = require('./')
 const header = [
   {cssClass: 'test1', id: 'test1', editorType: 'select', name: 'test 1', options: [{value: 'test', name: 'test'}, {value: 'foo', name: 'bar'}]},
   {cssClass: 'test2', id: 'test2', editorType: 'checkbox', name: 'test 2'},
@@ -19,10 +20,13 @@ const container = document.createElement('div')
 document.body.appendChild(container)
 const box = boxcar(container, {columns: header, data: data})
 
-box.on('insertRow', (evt) => console.log('Insert:', evt))
-  .on('update', (evt) => console.log('cell updated:', evt))
+pull(box.listen(), pull.drain((e) => console.log(e.type, e.data)))
 
 const add = document.createElement('button')
-add.innerText = 'Add row'
-add.onclick = () => box.emit('addRow')
+add.innerText = 'Add row to top'
+add.onclick = () => box.insertRow('top')
+const add2 = document.createElement('button')
+add2.innerText = 'Add row to bottom'
+add2.onclick = () => box.insertRow('bottom')
 document.body.appendChild(add)
+document.body.appendChild(add2)

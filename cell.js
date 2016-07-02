@@ -35,7 +35,6 @@ function getCellDisplay (cellData, cellConfig, isActive, inEdit, row, col, chooR
     const opt = cellConfig.options.find(d => d.value === cellData)
     cellData = opt && opt.name || cellData
   } else if (cellConfig.editorType === 'checkbox') {
-    console.log(`cell data is ${cellData}`)
     if (cellData) {
       cellData = '☑️'
     } else {

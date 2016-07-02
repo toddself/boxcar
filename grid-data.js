@@ -2,13 +2,15 @@
 const assert = require('assert')
 const shortid = require('shortid')
 
-const bus = require('./lib/bus')
+const notify = require('./lib/notify')
 const getActiveCellContents = require('./lib/get-active-cell-contents.js')
-
 const move = require('./effects/move.js')
 
 const validators = {}
 const disallowedTypes = ['hidden', 'file', 'radio', 'reset', 'submit']
+const bus = {
+  on: () => {}
+}
 
 // default validators
 const identity = (x) => x
@@ -33,7 +35,6 @@ module.exports = function (chooRoot, header, data) {
   }
 
   header = header.map(h => {
-    console.log(`parsing header type ${h.editorType}`)
     h.editorType = h.editorType || 'text'
     if (disallowedTypes.indexOf(h.editorType) > -1) {
       throw new Error(`${h.editorType} is not an allowed type of form element`)
@@ -69,7 +70,11 @@ module.exports = function (chooRoot, header, data) {
         send(`${chooRoot}:updateScratch`, {value: initialValue})
       },
       commit: (action, state, send) => {
-        const val = typeof action.value === 'undefined' ? state.scatch : action.value
+        notify({type: 'commit', action})
+        let val = state.scratch
+        if (typeof action.value !== 'undefined') {
+          val = action.value
+        }
         send(`${chooRoot}:unsetEdit`)
         send(`${chooRoot}:updateData`, {value: val})
         send(`${chooRoot}:clearScratch`)
@@ -83,15 +88,22 @@ module.exports = function (chooRoot, header, data) {
         send(`${chooRoot}:removeRow`, {row: row})
       },
       insertById: (action, state, send) => {
-        const row = state.data.findIndex(r => r.id === action.id)
-        send(`${chooRoot}:insertRow`, {row: row})
+        let insertRow = action.id
+        if (action.id === 'top') {
+          insertRow = 0
+        } else if (action.id === 'bottom') {
+          insertRow = state.data.length
+        } else {
+          insertRow = state.data.findIndex(r => r.id === action.id)
+        }
+
+        send(`${chooRoot}:insertRow`, {row: insertRow})
       }
     },
     reducers: {
       setActive: (action, state) => {
-        console.log(`Setting active to ${action.row}, ${action.col}`)
         const cell = {row: action.row, col: action.col}
-        bus.emit('activeCell', cell)
+        notify({type: 'activeCell', data: cell})
         return {activeCell: cell}
       },
       setEdit: (action, state) => {
@@ -101,7 +113,7 @@ module.exports = function (chooRoot, header, data) {
         return {inEdit: false}
       },
       updateScratch: (action, state) => {
-        bus.emit('updateScratch', action.value)
+        notify({type: 'updateScratch', data: action.value})
         return {scratch: action.value}
       },
       updateData: (action, state) => {
@@ -115,11 +127,9 @@ module.exports = function (chooRoot, header, data) {
         } catch (err) {
           return {error: err}
         }
-        console.log('Validated value is', value)
         const data = state.data.slice(0)
-        bus.emit('update', {rowId: rowId, colId: colId, value: value})
+        notify({type: 'update', data: {rowId: rowId, colId: colId, value: value}})
         data[row][colId] = value
-        console.log('update state.data with', data)
         return {data: data}
       },
       clearScratch: (action, state) => {
@@ -132,7 +142,7 @@ module.exports = function (chooRoot, header, data) {
         })
         const data = state.data.slice(0)
         data.splice(action.beforeId, 0, data)
-        bus.emit('insertRow', {before: action.beforeId, rows: [data]})
+        notify({type: 'insertRow', data: {before: action.beforeId, rows: [data]}})
         return {data: data}
       },
       removeRow: (action, state) => {
@@ -141,7 +151,7 @@ module.exports = function (chooRoot, header, data) {
         }
         const data = state.data.slice(0)
         data.splice(action.row, 1)
-        bus.emit('removeRow', {row: action.row})
+        notify({type: 'removeRow', data: {row: action.row}})
         return {data: data}
       },
       userActive: (action, state) => {
@@ -153,7 +163,6 @@ module.exports = function (chooRoot, header, data) {
     subscriptions: [
       (send) => bus.on('deleteRow', (evt) => send(`${chooRoot}:removeById`, {id: evt.id})),
       (send) => bus.on('addRow', (evt) => {
-        evt = evt || {}
         send(`${chooRoot}:insertById`, {id: evt.id})
       }),
       (send) => bus.on('userActive', (evt) => send(`${chooRoot}:userActive`, {user: evt.user, row: evt.row, col: evt.col}))

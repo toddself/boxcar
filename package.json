@@ -46,6 +46,8 @@
     "es2020": "^1.1.6",
     "insert-css": "^0.2.0",
     "min-document": "~2.18.0",
+    "pull-notify": "^0.1.1",
+    "pull-stream": "^3.4.3",
     "sheetify": "^5.0.1",
     "shortid": "^2.2.6",
     "string.fromcodepoint": "^0.2.1",
