@@ -1,10 +1,8 @@
-const notify = require('./lib/notify')
-const bus = {
-  emit: () => {}
-}
+const outbound = require('./lib/notify').outbound
+const inbound = require('./lib/notify').inbound
 
-notify.insertRow = (cell, rowData) => bus.emit('addRow', cell, rowData)
-notify.deleteRow = (cell) => bus.emit('deleteRow', cell)
-notify.update = (cell, rowData) => bus.emit('updateRow', cell, rowData)
+outbound.insertRow = (cell, rowData) => inbound({type: 'addRow', cell: cell, rowData: rowData})
+outbound.deleteRow = (cell) => inbound({type: 'deleteRow', cell: cell})
+outbound.update = (cell, rowData) => inbound({type: 'updateRow', cell: cell, rowData: rowData})
 
-module.exports = notify
+module.exports = outbound

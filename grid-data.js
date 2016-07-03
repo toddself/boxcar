@@ -1,16 +1,15 @@
 'use strict'
 const assert = require('assert')
 const shortid = require('shortid')
+const pull = require('pull-stream')
 
-const notify = require('./lib/notify')
+const outbound = require('./lib/notify').outbound
+const inbound = require('./lib/notify').inbound
 const getActiveCellContents = require('./lib/get-active-cell-contents.js')
 const move = require('./effects/move.js')
 
 const validators = {}
 const disallowedTypes = ['hidden', 'file', 'radio', 'reset', 'submit']
-const bus = {
-  on: () => {}
-}
 
 // default validators
 const identity = (x) => x
@@ -70,7 +69,7 @@ module.exports = function (chooRoot, header, data) {
         send(`${chooRoot}:updateScratch`, {value: initialValue})
       },
       commit: (action, state, send) => {
-        notify({type: 'commit', action})
+        outbound({type: 'commit', action})
         let val = state.scratch
         if (typeof action.value !== 'undefined') {
           val = action.value
@@ -103,7 +102,7 @@ module.exports = function (chooRoot, header, data) {
     reducers: {
       setActive: (action, state) => {
         const cell = {row: action.row, col: action.col}
-        notify({type: 'activeCell', data: cell})
+        outbound({type: 'activeCell', data: cell})
         return {activeCell: cell}
       },
       setEdit: (action, state) => {
@@ -113,7 +112,7 @@ module.exports = function (chooRoot, header, data) {
         return {inEdit: false}
       },
       updateScratch: (action, state) => {
-        notify({type: 'updateScratch', data: action.value})
+        outbound({type: 'updateScratch', data: action.value})
         return {scratch: action.value}
       },
       updateData: (action, state) => {
@@ -128,7 +127,7 @@ module.exports = function (chooRoot, header, data) {
           return {error: err}
         }
         const data = state.data.slice(0)
-        notify({type: 'update', data: {rowId: rowId, colId: colId, value: value}})
+        outbound({type: 'update', data: {rowId: rowId, colId: colId, value: value}})
         data[row][colId] = value
         return {data: data}
       },
@@ -142,7 +141,7 @@ module.exports = function (chooRoot, header, data) {
         })
         const data = state.data.slice(0)
         data.splice(action.beforeId, 0, data)
-        notify({type: 'insertRow', data: {before: action.beforeId, rows: [data]}})
+        outbound({type: 'insertRow', data: {before: action.beforeId, rows: [data]}})
         return {data: data}
       },
       removeRow: (action, state) => {
@@ -151,7 +150,7 @@ module.exports = function (chooRoot, header, data) {
         }
         const data = state.data.slice(0)
         data.splice(action.row, 1)
-        notify({type: 'removeRow', data: {row: action.row}})
+        outbound({type: 'removeRow', data: {row: action.row}})
         return {data: data}
       },
       userActive: (action, state) => {
@@ -161,11 +160,21 @@ module.exports = function (chooRoot, header, data) {
       }
     },
     subscriptions: [
-      (send) => bus.on('deleteRow', (evt) => send(`${chooRoot}:removeById`, {id: evt.id})),
-      (send) => bus.on('addRow', (evt) => {
-        send(`${chooRoot}:insertById`, {id: evt.id})
-      }),
-      (send) => bus.on('userActive', (evt) => send(`${chooRoot}:userActive`, {user: evt.user, row: evt.row, col: evt.col}))
+      (send) => {
+        pull(inbound.listen(), pull.drain((evt) => {
+          switch (evt.type) {
+            case 'deleteRow':
+              send(`${chooRoot}:removeById`, {id: evt.id})
+              break
+            case 'addRow':
+              send(`${chooRoot}:insertById`, {id: evt.id})
+              break
+            case 'userActive':
+              send(`${chooRoot}:userActive`, {user: evt.user, row: evt.row, col: evt.col})
+              break
+          }
+        }))
+      }
     ]
   }
 }
