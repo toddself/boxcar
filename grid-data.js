@@ -135,13 +135,18 @@ module.exports = function (chooRoot, header, data) {
         return {scratch: ''}
       },
       insertRow: (action, state) => {
-        const row = {id: shortid.generate()}
-        state.header.forEach(h => {
-          row[h.id] = h.default || ''
+        let rows = action.rows
+        if (!Array.isArray(rows)) {
+          rows = [{id: shortid.generate()}]
+        }
+        rows.forEach(r => {
+          state.header.forEach(h => {
+            r[h.id] = h.default || ''
+          })
         })
         const data = state.data.slice(0)
-        data.splice(action.beforeId, 0, data)
-        outbound({type: 'insertRow', data: {before: action.beforeId, rows: [data]}})
+        data.splice(action.row, 0, rows)
+        outbound({type: 'insertRow', data: {before: action.row, rows: rows}})
         return {data: data}
       },
       removeRow: (action, state) => {
@@ -155,7 +160,7 @@ module.exports = function (chooRoot, header, data) {
       },
       userActive: (action, state) => {
         const users = {}
-        users[state.user] = {row: state.row, col: state.col}
+        users[action.user] = {row: action.row, col: action.col}
         return users
       }
     },
@@ -163,11 +168,15 @@ module.exports = function (chooRoot, header, data) {
       (send) => {
         pull(inbound.listen(), pull.drain((evt) => {
           switch (evt.type) {
-            case 'deleteRow':
+            case 'removeRow':
               send(`${chooRoot}:removeById`, {id: evt.id})
               break
-            case 'addRow':
-              send(`${chooRoot}:insertById`, {id: evt.id})
+            case 'insertRow':
+              console.log('insert', evt)
+              send(`${chooRoot}:insertById`, {id: evt.id, rows: evt.rows})
+              break
+            case 'updateCell':
+              send(`${chooRoot}:updateCell`, {cell: evt.cell, data: evt.data})
               break
             case 'userActive':
               send(`${chooRoot}:userActive`, {user: evt.user, row: evt.row, col: evt.col})

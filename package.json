@@ -39,10 +39,9 @@
   },
   "homepage": "https://github.com/toddself/boxcar#readme",
   "dependencies": {
-    "@toddself/throw-down": "^0.1.7",
     "browserify-istanbul": "^2.0.0",
     "bubleify": "~0.5.0",
-    "choo": "^2.2.0",
+    "choo": "^2.3.1",
     "es2020": "^1.1.6",
     "insert-css": "^0.2.0",
     "min-document": "~2.18.0",

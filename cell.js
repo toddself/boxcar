@@ -2,16 +2,9 @@
 
 const choo = require('choo')
 const v = choo.view
-const connect = require('@toddself/throw-down/connect')
 
 const grid = require('./styles.js')
 const formElement = require('./lib/form-element')
-
-function setFocus (node) {
-  if (node.nodeName === 'INPUT' && node.type === 'text') {
-    node.setSelectionRange(node.value.length, node.value.length)
-  }
-}
 
 function getEditor (cellData, cellConfig, isActive, inEdit, row, col, chooRoot, send) {
   const params = {
@@ -56,7 +49,6 @@ function cellContent (cellData, cellConfig, isActive, inEdit, row, col, chooRoot
   } else {
     $el = getCellDisplay(cellData, cellConfig, isActive, inEdit, row, col, chooRoot, send)
   }
-  connect($el, null, setFocus)
   return $el
 }
 

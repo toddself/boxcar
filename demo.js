@@ -1,5 +1,4 @@
 const shortid = require('shortid')
-const pull = require('pull-stream')
 
 const boxcar = require('./')
 const header = [
@@ -18,15 +17,13 @@ const data = [
 
 const container = document.createElement('div')
 document.body.appendChild(container)
-const box = boxcar(container, {columns: header, data: data})
-
-pull(box.listen(), pull.drain((e) => console.log(e.type, e.data)))
+const box = boxcar(container, {columns: header, data: data, notifier: console.log})
 
 const add = document.createElement('button')
 add.innerText = 'Add row to top'
-add.onclick = () => box.insertRow('top')
+add.onclick = () => box.insertRow({id: 'top'})
 const add2 = document.createElement('button')
 add2.innerText = 'Add row to bottom'
-add2.onclick = () => box.insertRow('bottom')
+add2.onclick = () => box.insertRow({id: 'bottom'})
 document.body.appendChild(add)
 document.body.appendChild(add2)
