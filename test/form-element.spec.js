@@ -9,12 +9,11 @@ test('makes an input', (t) => {
 })
 
 test('sets params and actions', (t) => {
-  t.plan(4)
-  const i = formElement('text', {value: 'this', autofocus: true, class: 'test'}, {onkeydown: (evt) => t.ok(true, 'fired')})
+  t.plan(3)
+  const i = formElement('text', {value: 'this', autofocus: true, class: 'test'})
   t.equal(i.value, 'this', 'value')
   t.ok(i.getAttribute('autofocus'), 'autofocus')
   t.equal(i.getAttribute('class'), 'test', 'has classes')
-  i.onkeydown()
 })
 
 test('select boxes', (t) => {
