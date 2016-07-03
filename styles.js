@@ -36,6 +36,13 @@ const grid = sf`
     margin: 2px;
   }
 
+  .header {
+    text-align: center;
+    font-weight: bold;
+    background-color: #39f;
+    padding: 2px;
+  }
+
   .active {
     border: 2px solid #00FFFF;
     margin: 0px;
