@@ -6,3 +6,4 @@ Chrome*
 .nyc_output
 .sauce-cred
 .zuulrc
+coverage.json

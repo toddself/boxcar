@@ -9,3 +9,4 @@ sauce_connect.log
 .sauce-cred
 .sauce-credentials.json
 .zuulrc
+coverage.json

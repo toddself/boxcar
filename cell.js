@@ -13,13 +13,19 @@ function getEditor (cellData, cellConfig, isActive, inEdit, row, col, chooRoot, 
     value: cellData
   }
 
-  const actions = {
-    oninput: (evt) => send(`${chooRoot}:updateScratch`, {value: evt.target.value}),
-    onchange: (evt) => {
-      const val = evt.target.type === 'checkbox' ? evt.target.checked : evt.target.value
-      send(`${chooRoot}:commit`, {value: val})
-    }
+  const oninput = (evt) => send(`${chooRoot}:updateScratch`, {value: evt.target.value})
+  const onchange = (evt) => {
+    const val = evt.target.type === 'checkbox' ? evt.target.checked : evt.target.value
+    send(`${chooRoot}:commit`, {value: val})
   }
+
+  const actions = {}
+  if (cellConfig.editorType === 'select' || cellConfig.editorType === 'checkbox') {
+    actions.onchange = onchange
+  } else {
+    actions.oninput = oninput
+  }
+
   return formElement(cellConfig.editorType, params, actions, cellConfig.options)
 }
 

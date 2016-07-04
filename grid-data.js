@@ -74,6 +74,7 @@ module.exports = function (chooRoot, header, data) {
         if (typeof action.value !== 'undefined') {
           val = action.value
         }
+        console.log(`action was ${typeof action.value}, scratch was ${state.scratch} val is ${val}`)
         send(`${chooRoot}:unsetEdit`)
         send(`${chooRoot}:updateData`, {value: val})
         send(`${chooRoot}:clearScratch`)
@@ -172,7 +173,6 @@ module.exports = function (chooRoot, header, data) {
               send(`${chooRoot}:removeById`, {id: evt.id})
               break
             case 'insertRow':
-              console.log('insert', evt)
               send(`${chooRoot}:insertById`, {id: evt.id, rows: evt.rows})
               break
             case 'updateCell':

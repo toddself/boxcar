@@ -17,7 +17,7 @@ const data = [
 
 const container = document.createElement('div')
 document.body.appendChild(container)
-const box = boxcar(container, {columns: header, data: data, notifier: console.log})
+const box = boxcar(container, {columns: header, data: data, notifier: console.log.bind(console)})
 
 const add = document.createElement('button')
 add.innerText = 'Add row to top'
