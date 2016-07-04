@@ -7,7 +7,7 @@
     "dep": "dependency-check . && dependency-check . --extra --no-dev -i es2020",
     "start": "budo demo.js -o --title \"Boxcar Demo\" -P -l -- -t -g=es2020 -t sheetify/transform",
     "test": "npm run dep && browserify -t es2020 -t sheetify/transform test/*.spec.js | tape-run",
-    "test:cov": "browserify -t es2020 -t sheetify/transform -p tape-istanbul/plugin test/*.spec.js | tape-run | tape-istanbul && istanbul report && cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js",
+    "test:cov": "browserify -t es2020 -t sheetify/transform -p tape-istanbul/plugin test/*.spec.js | tape-run | tape-istanbul && istanbul report",
     "test:sauce": "zuul -- test/*.spec.js",
     "test:local": "zuul --local 8080 -- test/*.spec.js",
     "build": "browserify . > bundle.js"

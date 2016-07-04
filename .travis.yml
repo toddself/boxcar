@@ -3,4 +3,4 @@ script: npm run test:cov
 node_js:
   - node
 after_success:
-  - "bash <(curl -s https://codecov.io/bash)"
+  - "cat ./coverage/lconv.info | ./node_modules./bin/coveralls"
