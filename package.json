@@ -7,7 +7,7 @@
     "dep": "dependency-check . && dependency-check . --extra --no-dev -i es2020",
     "start": "budo demo.js -o --title \"Boxcar Demo\" -P -l -- -t -g=es2020 -t sheetify/transform",
     "test": "npm run dep && browserify -t es2020 -t sheetify/transform test/*.spec.js | tape-run",
-    "test:cov": "browserify -t es2020 -t sheetify/transform -p tape-istanbul/plugin test/*.spec.js | tape-run | tape-istanbul && istanbul report",
+    "test:cov": "browserify -t es2020 -t sheetify/transform -p tape-istanbul/plugin test/*.spec.js | tape-run | tape-istanbul && istanbul report && cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js",
     "test:sauce": "zuul -- test/*.spec.js",
     "test:local": "zuul --local 8080 -- test/*.spec.js",
     "build": "browserify . > bundle.js"
@@ -52,10 +52,9 @@
   "devDependencies": {
     "browserify": "^13.0.1",
     "budo": "^8.3.0",
+    "coveralls": "^2.11.9",
     "dependency-check": "^2.5.1",
     "istanbul": "^0.4.4",
-    "keysim": "^1.3.0",
-    "phantomjs": "^2.1.7",
     "tape": "^4.5.1",
     "tape-istanbul": "^1.0.3",
     "tape-run": "^2.1.4",
