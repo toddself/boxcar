@@ -2,6 +2,7 @@
 const assert = require('assert')
 const shortid = require('shortid')
 const pull = require('pull-stream')
+const series = require('run-series')
 
 const outbound = require('./lib/notify').outbound
 const inbound = require('./lib/notify').inbound
@@ -63,31 +64,37 @@ module.exports = function (chooRoot, header, data) {
     },
     effects: {
       move: move(chooRoot),
-      edit: (action, state, send) => {
-        send(`${chooRoot}:setEdit`)
+      edit: (action, state, send, done) => {
+        action = action || {}
         const initialValue = action.value || getActiveCellContents(state)
-        send(`${chooRoot}:updateScratch`, {value: initialValue})
+        series([
+          (cb) => send(`${chooRoot}:setEdit`, cb),
+          (cb) => send(`${chooRoot}:updateScratch`, {value: initialValue}, cb)
+        ], done)
       },
-      commit: (action, state, send) => {
+      commit: (action, state, send, done) => {
         outbound({type: 'commit', action})
         let val = state.scratch
         if (typeof action.value !== 'undefined') {
           val = action.value
         }
-        console.log(`action was ${typeof action.value}, scratch was ${state.scratch} val is ${val}`)
-        send(`${chooRoot}:unsetEdit`)
-        send(`${chooRoot}:updateData`, {value: val})
-        send(`${chooRoot}:clearScratch`)
+        series([
+          (cb) => send(`${chooRoot}:unsetEdit`, cb),
+          (cb) => send(`${chooRoot}:updateData`, {value: val}, cb),
+          (cb) => send(`${chooRoot}:clearScratch`, cb)
+        ], done)
       },
-      revert: (action, state, send) => {
-        send(`${chooRoot}:unsetEdit`)
-        send(`${chooRoot}:clearScratch`)
+      revert: (action, state, send, done) => {
+        series([
+          (cb) => send(`${chooRoot}:unsetEdit`, cb),
+          (cb) => send(`${chooRoot}:clearScratch`, cb)
+        ], done)
       },
-      removeById: (action, state, send) => {
+      removeById: (action, state, send, done) => {
         const row = state.data.findIndex(r => r.id === action.id)
-        send(`${chooRoot}:removeRow`, {row: row})
+        send(`${chooRoot}:removeRow`, {row: row}, done)
       },
-      insertById: (action, state, send) => {
+      insertById: (action, state, send, done) => {
         let insertRow = action.id
         if (action.id === 'top') {
           insertRow = 0
@@ -97,7 +104,7 @@ module.exports = function (chooRoot, header, data) {
           insertRow = state.data.findIndex(r => r.id === action.id)
         }
 
-        send(`${chooRoot}:insertRow`, {row: insertRow})
+        send(`${chooRoot}:insertRow`, {row: insertRow}, done)
       }
     },
     reducers: {

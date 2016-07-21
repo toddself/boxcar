@@ -7,7 +7,7 @@
     "dep": "dependency-check . && dependency-check . --extra --no-dev -i es2020",
     "start": "budo demo.js -o --title \"Boxcar Demo\" -P -l -- -t -g=es2020 -t sheetify/transform",
     "test": "npm run dep && browserify -t es2020 -t sheetify/transform test/*.spec.js | tape-run",
-    "test:cov": "browserify -t es2020 -t sheetify/transform -p tape-istanbul/plugin test/*.spec.js | tape-run | tape-istanbul && istanbul report",
+    "test:cov": "browserify -t es2020 -t sheetify/transform -p tape-istanbul/plugin test/*.spec.js | tape-run | tape-istanbul && istanbul ---only report",
     "test:sauce": "zuul -- test/*.spec.js",
     "test:local": "zuul --local 8080 -- test/*.spec.js",
     "build": "browserify . > bundle.js"
@@ -41,10 +41,11 @@
   },
   "homepage": "https://github.com/toddself/boxcar#readme",
   "dependencies": {
-    "choo": "^2.3.1",
+    "choo": "^3.1.2",
     "es2020": "^1.1.6",
     "pull-notify": "^0.1.1",
     "pull-stream": "^3.4.3",
+    "run-series": "^1.1.4",
     "sheetify": "^5.0.3",
     "shortid": "^2.2.6",
     "string.fromcodepoint": "^0.2.1"

@@ -1,5 +1,6 @@
 const test = require('tape')
 const choo = require('choo')
+const html = require('choo/html')
 const gridData = require('../grid-data')
 const createKeyEvent = require('./create-key-event')
 const gridKeydown = require('../lib/grid-keydown')
@@ -60,11 +61,8 @@ test('arrow keys and enter/escape from edit', (t) => {
     () => tree.dispatchEvent(createKeyEvent('keydown', 'ArrowLeft')),
     () => tree.dispatchEvent(createKeyEvent('keydown', 'ArrowUp')),
     () => tree.dispatchEvent(createKeyEvent('keydown', 'Enter')),
-    () => {},
     () => tree.dispatchEvent(createKeyEvent('input', 'yo')),
-    () => {},
-    () => tree.dispatchEvent(createKeyEvent('keydown', 'Escape')),
-    () => {}
+    () => tree.dispatchEvent(createKeyEvent('keydown', 'Escape'))
   ]
 
   const tests = [
@@ -80,22 +78,19 @@ test('arrow keys and enter/escape from edit', (t) => {
     (state) => t.deepEqual(state.c.activeCell, {row: 0, col: 0}, '0, 0 does not go negative left'), // 7 left
     (state) => t.deepEqual(state.c.activeCell, {row: 0, col: 0}, '0, 0 does not go negative up'), // 8 up
     (state) => t.ok(state.c.inEdit, 'edit mode actived'), // 7 enter
-    (state) => t.equal(state.c.scratch, 'hi', 'scratch is set'), // 8 enter sends two actions...
     (state) => t.equal(state.c.scratch, 'hiyo', `scratch is now ${state.c.scratch}`),
-    (state) => t.equal(state.c.scratch, 'hiyo', `scratch is now ${state.c.scratch}`),
-    (state) => t.ok(!state.c.inEdit, 'edit mode deactivated'),
-    (state) => t.equal(state.c.scratch, '', 'scratch cleared')
+    (state) => t.ok(!state.c.inEdit, 'edit mode deactivated')
   ]
   t.plan(tests.length)
 
   const app = choo()
   app.model(gridData('c', defaultHeaders, defaultData))
 
-  const main = (params, state, send) => {
+  const main = (state, prev, send) => {
     tests[loop] && tests[loop](state)
     setTimeout(() => triggers[loop] && triggers[loop](), 5)
     ++loop
-    return choo.view`<input
+    return html`<input
       onkeydown=${(evt) => gridKeydown(evt, state.c.inEdit, 'c', send)}
       oninput=${(evt) => state.c.inEdit && send('c:updateScratch', {value: `${evt.target.value}${evt.key || evt.keyIdentifier}`})}
       value=${state.c.scratch}
@@ -116,31 +111,23 @@ test('committing edit', (t) => {
   const triggers = [
     () => {},
     () => tree.dispatchEvent(createKeyEvent('keydown', 'Enter')),
-    () => {},
     () => tree.dispatchEvent(createKeyEvent('input', 'hello, world')),
-    () => tree.setAttribute('value', 'hello, world'),
-    () => tree.dispatchEvent(createKeyEvent('keydown', 'Enter')),
-    () => {},
-    () => {}
+    () => tree.dispatchEvent(createKeyEvent('keydown', 'Enter'))
   ]
   const tests = [
     (state) => t.equal(state.d.data[0].c1, 'hi', 'no value initally'),
     (state) => t.ok(state.d.inEdit, 'set edit mode'),
-    (state) => t.equal(state.d.scratch, 'hi', 'default value in scratch'),
     (state) => t.equal(state.d.scratch, 'hello, world', 'hello, world in scratch'),
-    (state) => t.equal(tree.value, 'hello, world', 'hello, world in input'),
-    (state) => t.ok(!state.d.inEdit, 'removed edit mode'),
-    (state) => t.equal(state.d.data[0].c1, 'hello, world', 'has the committed value'),
-    (state) => t.equal(state.d.scratch, '', 'scratch reset')
+    (state) => t.ok(!state.d.inEdit, 'removed edit mode')
   ]
 
   t.plan(tests.length)
 
-  const main = (params, state, send) => {
+  const main = (state, prev, send) => {
     tests[loop] && tests[loop](state)
     setTimeout(() => triggers[loop] && triggers[loop](), 5)
     ++loop
-    return choo.view`<input
+    return html`<input
       type="text"
       onkeydown=${(evt) => gridKeydown(evt, state.d.inEdit, 'd', send)}
       oninput=${updateScratch}

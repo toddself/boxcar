@@ -1,7 +1,6 @@
 'use strict'
 
-const choo = require('choo')
-const v = choo.view
+const html = require('choo/html')
 
 const grid = require('./styles.js')
 const formElement = require('./lib/form-element')
@@ -41,7 +40,7 @@ function getCellDisplay (cellData, cellConfig, isActive, inEdit, row, col, chooR
     }
   }
 
-  return v`<span
+  return html`<span
     onclick=${() => send(`${chooRoot}:move`, {mouse: true, row: row, col: col, key: ''})}
     class="${grid} ${isActive ? 'active' : ''} cell-content cell-data">
       ${cellData}
@@ -64,7 +63,7 @@ function cell (state, cellValue, cellConfig, row, col, chooRoot, send) {
   const inEdit = isActive && state.inEdit === true
   const cellData = inEdit ? state.scratch : cellValue
 
-  const $el = v`
+  const $el = html`
     <span tabindex="0" class="${grid} cell">
         ${cellContent(cellData, cellConfig, isActive, inEdit, row, col, chooRoot, send)}
     </span>`

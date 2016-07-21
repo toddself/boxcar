@@ -1,8 +1,9 @@
 const assert = require('assert')
+
 const choo = require('choo')
 const shortid = require('shortid')
 const pull = require('pull-stream')
-const v = choo.view
+const html = require('choo/html')
 
 const outbound = require('./lib/notify').outbound
 const api = require('./api')
@@ -32,8 +33,8 @@ function boxcar (anchorNode, opts) {
   anchorNode.appendChild(tree)
   return api
 
-  function boxcarMain (params, state, send) {
-    const $main = v`
+  function boxcarMain (state, prev, send) {
+    const $main = html`
       <div
         tabindex="0"
         class="${grid}"

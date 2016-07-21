@@ -4,7 +4,7 @@ const dcTimeout = 750
 let dcTimer = null
 
 function getMove (chooRoot) {
-  return function move (action, state, send) {
+  return function move (action, state, send, done) {
     let setEdit = false
     if (state.inEdit) {
       send(`${chooRoot}:updateData`, {value: state.scratch || getActiveCellContents(state)})
@@ -63,10 +63,14 @@ function getMove (chooRoot) {
         }
         break
     }
-    send(`${chooRoot}:setActive`, active)
-    if (setEdit) {
-      send(`${chooRoot}:edit`)
-    }
+
+    send(`${chooRoot}:setActive`, active, () => {
+      if (setEdit) {
+        send(`${chooRoot}:edit`, done)
+      } else {
+        done()
+      }
+    })
   }
 }
 

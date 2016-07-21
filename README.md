@@ -1,6 +1,6 @@
 # Boxcar
+[![API Stability](https://img.shields.io/badge/stability-experimental-orange.svg?style=flat-square)](https://nodejs.org/api/documentation.html#documentation_stability_index) [![Build Status](https://travis-ci.org/toddself/boxcar.svg?branch=master)](https://travis-ci.org/toddself/boxcar) [![codecov](https://codecov.io/gh/toddself/boxcar/branch/master/graph/badge.svg)](https://codecov.io/gh/toddself/boxcar) [![built with choo v3](https://img.shields.io/badge/built%20with%20choo-v3-ffc3e4.svg?style=flat-square)](https://github.com/yoshuawuyts/choo)
 
-[![API Stability](https://img.shields.io/badge/stability-experimental-orange.svg?style=flat-square)](https://nodejs.org/api/documentation.html#documentation_stability_index) [![Build Status](https://travis-ci.org/toddself/boxcar.svg?branch=master)](https://travis-ci.org/toddself/boxcar) [![codecov](https://codecov.io/gh/toddself/boxcar/branch/master/graph/badge.svg)](https://codecov.io/gh/toddself/boxcar)
 
 A [:steam_locomotive::train::train::train::train::train: (choo)](https://github.com/yoshuawuyts/choo)-based spreadsheet/multi-row form element widget.
 
