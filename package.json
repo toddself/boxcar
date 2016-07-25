@@ -4,19 +4,19 @@
   "description": "A choo view for handling lists of data",
   "main": "boxcar.js",
   "scripts": {
-    "dep": "dependency-check . && dependency-check . --extra --no-dev -i es2020",
-    "start": "budo demo.js -o --title \"Boxcar Demo\" -P -l -- -t -g=es2020 -t sheetify/transform",
-    "test": "npm run dep && browserify -t es2020 -t sheetify/transform test/*.spec.js | tape-run",
-    "test:cov": "browserify -t es2020 -t sheetify/transform -p tape-istanbul/plugin test/*.spec.js | tape-run | tape-istanbul && istanbul ---only report",
+    "dep": "dependency-check . && dependency-check . --extra --no-dev -i es2040 -i envify -i uglifyify -i yo-yoify -i unassertify",
+    "start": "budo demo.js -o --title \"Boxcar Demo\" -P -l -- -t -g=es2040 -t sheetify/transform",
+    "test": "npm run dep && browserify -t es2040 -t sheetify/transform test/*.spec.js | tape-run",
+    "test:cov": "browserify -t es2040 -t sheetify/transform -p tape-istanbul/plugin test/*.spec.js | tape-run | tape-istanbul && istanbul ---only report",
     "test:sauce": "zuul -- test/*.spec.js",
     "test:local": "zuul --local 8080 -- test/*.spec.js",
-    "build": "browserify . > bundle.js"
+    "build": "browserify -t envify -t sheetify/transform -g es2040 -g yo-yoify -g unassertify -g uglifyify | uglifyjs. > dist/bundle.js"
   },
   "browserify": {
     "transforms": [
       "sheetify/transform",
       [
-        "es2020",
+        "es2040",
         {
           "global": true
         }
@@ -42,13 +42,17 @@
   "homepage": "https://github.com/toddself/boxcar#readme",
   "dependencies": {
     "choo": "^3.1.2",
-    "es2020": "^1.1.6",
+    "envify": "^3.4.1",
+    "es2040": "^1.2.2",
     "pull-notify": "^0.1.1",
     "pull-stream": "^3.4.3",
     "run-series": "^1.1.4",
     "sheetify": "^5.0.3",
     "shortid": "^2.2.6",
-    "string.fromcodepoint": "^0.2.1"
+    "string.fromcodepoint": "^0.2.1",
+    "uglifyify": "^3.0.2",
+    "unassertify": "^2.0.3",
+    "yo-yoify": "^3.3.0"
   },
   "devDependencies": {
     "browserify": "^13.0.1",

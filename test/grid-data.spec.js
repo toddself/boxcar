@@ -15,6 +15,18 @@ const defaultData = [
   {c1: 'yo', c2: 'word'}
 ]
 
+function createMouseEvent (el, button) {
+  button = parseInt(button, 10) || 0
+  const $el = document.querySelector(el)
+  const x = $el.offsetLeft
+  const y = $el.offsetTop
+  return new window.MouseEvent('click', {
+    screenX: x,
+    screenY: y,
+    button: button
+  })
+}
+
 test('root must be string', (t) => {
   t.throws(() => gridData([]))
   t.end()
@@ -84,7 +96,7 @@ test('arrow keys and enter/escape from edit', (t) => {
   t.plan(tests.length)
 
   const app = choo()
-  app.model(gridData('c', defaultHeaders, defaultData))
+  app.model(gridData('c', defaultHeaders, JSON.parse(JSON.stringify(defaultData))))
 
   const main = (state, prev, send) => {
     tests[loop] && tests[loop](state)
@@ -104,7 +116,7 @@ test('arrow keys and enter/escape from edit', (t) => {
 
 test('committing edit', (t) => {
   const app = choo()
-  app.model(gridData('d', defaultHeaders, defaultData))
+  app.model(gridData('d', defaultHeaders, JSON.parse(JSON.stringify(defaultData))))
   let tree
   let loop = 0
 
@@ -143,8 +155,59 @@ test('committing edit', (t) => {
   document.body.appendChild(tree)
 })
 
-test('commit edit via mouse click', {disabled: true}, (t) => {
-  t.end()
+test('commit edit via mouse click', (t) => {
+  const app = choo()
+  let tree
+  let loop = 0
+
+  const triggers = [
+    () => {},
+    () => tree.querySelector('#input0').dispatchEvent(createKeyEvent('keydown', 'Enter')),
+    () => tree.querySelector('#input0').dispatchEvent(createKeyEvent('input', 'hello, world')),
+    () => tree.querySelector('#input1').dispatchEvent(createMouseEvent('#input1'))
+  ]
+
+  const tests = [
+    (state) => t.equal(state.e.data[0].c1, 'hi', 'initial value'),
+    (state) => t.ok(state.e.inEdit, 'set edit mode'),
+    (state) => t.equal(state.e.scratch, 'hello, world', 'hello, world in scratch'),
+    (state) => t.ok(!state.e.inEdit, 'removed edit mode')
+  ]
+
+  t.plan(tests.length)
+  app.model(gridData('e', defaultHeaders, JSON.parse(JSON.stringify(defaultData))))
+  function main (state, prev, send) {
+    tests[loop] && tests[loop](state)
+    setTimeout(() => triggers[loop] && triggers[loop](), 5)
+    ++loop
+    return html`<div>
+    <input
+      type="text"
+      id="input0"
+      onclick=${(evt) => send('e:move', {mouse: true, row: 0, col: 0, key: ''})}
+      onkeydown=${(evt) => gridKeydown(evt, state.e.inEdit, 'e', send)}
+      oninput=${updateScratch}
+      value=${state.e.scratch}>
+    <input
+      type="text"
+      id="input1"
+      onclick=${(evt) => {
+        console.log('input 2 clicked')
+        send('e:move', {mouse: true, row: 1, col: 1, key: ''})
+      }}
+      onkeydown=${(evt) => gridKeydown(evt, state.e.inEdit, 'e', send)}
+      oninput=${updateScratch}
+      value=${state.e.scratch}>
+    </div>`
+    function updateScratch (evt) {
+      if (state.e.inEdit) {
+        send('e:updateScratch', {value: evt.key || evt.keyIdentifier})
+      }
+    }
+  }
+  app.router((route) => [route('/', main)])
+  tree = app.start({name: 'e'})
+  document.body.appendChild(tree)
 })
 
 test('activate via double click', {disabled: true}, (t) => {

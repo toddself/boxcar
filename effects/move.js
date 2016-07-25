@@ -1,4 +1,5 @@
 'use strict'
+const series = require('run-series')
 const getActiveCellContents = require('../lib/get-active-cell-contents')
 const dcTimeout = 750
 let dcTimer = null
@@ -6,14 +7,6 @@ let dcTimer = null
 function getMove (chooRoot) {
   return function move (action, state, send, done) {
     let setEdit = false
-    if (state.inEdit) {
-      send(`${chooRoot}:updateData`, {value: state.scratch || getActiveCellContents(state)})
-      send(`${chooRoot}:unsetEdit`)
-      if (action.key.includes('Tab')) {
-        setEdit = true
-      }
-    }
-
     let col = state.activeCell.col
     let row = state.activeCell.row
     if (action.mouse) {
@@ -64,13 +57,23 @@ function getMove (chooRoot) {
         break
     }
 
-    send(`${chooRoot}:setActive`, active, () => {
-      if (setEdit) {
-        send(`${chooRoot}:edit`, done)
-      } else {
-        done()
+    const ops = [send.bind(send, `${chooRoot}:setActive`, active)]
+
+    if (state.inEdit) {
+      const data = state.scratch || getActiveCellContents(state)
+      const updateData = send.bind(send, `${chooRoot}:updateData`, {value: data})
+      const unsetEdit = send.bind(send, `${chooRoot}:unsetEdit`)
+      ops.unshift(updateData, unsetEdit)
+      if (action.key.includes('Tab')) {
+        setEdit = true
       }
-    })
+    }
+
+    if (setEdit) {
+      ops.push(send.bind(send, `${chooRoot}:edit`))
+    }
+
+    series(ops, done)
   }
 }
 
