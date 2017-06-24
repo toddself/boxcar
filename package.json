@@ -4,23 +4,15 @@
   "description": "A choo view for handling lists of data",
   "main": "boxcar.js",
   "scripts": {
-    "dep": "dependency-check . && dependency-check . --extra --no-dev -i es2040 -i envify -i uglifyify -i yo-yoify -i unassertify",
-    "start": "budo demo.js -o --title \"Boxcar Demo\" -P -l -- -t -g=es2040 -t sheetify/transform",
-    "test": "npm run dep && browserify -t es2040 -t sheetify/transform test/*.spec.js | tape-run",
-    "test:cov": "browserify -t es2040 -t sheetify/transform -p tape-istanbul/plugin test/*.spec.js | tape-run | tape-istanbul && istanbul ---only report",
-    "test:sauce": "zuul -- test/*.spec.js",
-    "test:local": "zuul --local 8080 -- test/*.spec.js",
-    "build": "browserify -t envify -t sheetify/transform -g es2040 -g yo-yoify -g unassertify -g uglifyify | uglifyjs. > dist/bundle.js"
+    "dep": "dependency-check . && dependency-check . --unused --no-dev",
+    "start": "bankai start demo.js --debug",
+    "test": "standard && npm run dep && browserify test/*.spec.js | tape-run"
   },
   "browserify": {
-    "transforms": [
+    "transform": [
+      "yo-yoify",
       "sheetify/transform",
-      [
-        "es2040",
-        {
-          "global": true
-        }
-      ]
+      "babelify"
     ]
   },
   "repository": {
@@ -41,29 +33,21 @@
   },
   "homepage": "https://github.com/toddself/boxcar#readme",
   "dependencies": {
-    "choo": "^3.1.2",
-    "envify": "^3.4.1",
-    "es2040": "^1.2.2",
-    "pull-notify": "^0.1.1",
-    "pull-stream": "^3.4.3",
-    "run-series": "^1.1.4",
-    "sheetify": "^5.0.3",
-    "shortid": "^2.2.6",
-    "string.fromcodepoint": "^0.2.1",
-    "uglifyify": "^3.0.2",
-    "unassertify": "^2.0.3",
-    "yo-yoify": "^3.3.0"
+    "babel-preset-env": "^1.5.2",
+    "babelify": "^7.3.0",
+    "sheetify": "^6.1.0",
+    "yo-yoify": "^3.7.3"
   },
   "devDependencies": {
-    "browserify": "^13.0.1",
-    "budo": "^8.3.0",
-    "coveralls": "^2.11.9",
-    "dependency-check": "^2.5.1",
-    "istanbul": "^0.4.4",
-    "tape": "^4.5.1",
-    "tape-istanbul": "^1.0.3",
-    "tape-run": "^2.1.4",
-    "watchify": "^3.7.0",
-    "zuul": "toddself/zuul"
+    "bankai": "^8.1.1",
+    "browserify": "^14.4.0",
+    "browserify-istanbul": "github:toddself/browserify-istanbul#strip-base-path",
+    "dependency-check": "^2.9.1",
+    "istanbul": "^0.4.5",
+    "opener": "^1.4.3",
+    "standard": "^10.0.2",
+    "tape": "^4.6.3",
+    "tape-istanbul": "^1.1.1",
+    "tape-run": "^3.0.0"
   }
 }
