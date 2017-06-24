@@ -4,15 +4,14 @@
   "description": "A choo view for handling lists of data",
   "main": "boxcar.js",
   "scripts": {
-    "dep": "dependency-check . && dependency-check . --unused --no-dev",
-    "start": "bankai start demo.js --debug",
+    "dep": "dependency-check . && dependency-check . --unused --no-dev -i yo-yoify -i sheetify",
+    "start": "bankai start example.js --debug",
     "test": "standard && npm run dep && browserify test/*.spec.js | tape-run"
   },
   "browserify": {
     "transform": [
       "yo-yoify",
-      "sheetify/transform",
-      "babelify"
+      "sheetify/transform"
     ]
   },
   "repository": {
@@ -33,8 +32,8 @@
   },
   "homepage": "https://github.com/toddself/boxcar#readme",
   "dependencies": {
-    "babel-preset-env": "^1.5.2",
-    "babelify": "^7.3.0",
+    "bel": "^4.6.0",
+    "nanobus": "^4.2.0",
     "sheetify": "^6.1.0",
     "yo-yoify": "^3.7.3"
   },
