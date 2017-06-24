@@ -1,6 +1,0 @@
-language: node_js
-script: npm run test:cov
-node_js:
-  - node
-after_success:
-  - "cat ./coverage/lcov.info | ./node_modules/.bin/coveralls"
